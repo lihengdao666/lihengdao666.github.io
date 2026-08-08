@@ -1,0 +1,139 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import articleBody from "../../content/x-client-transaction-id.html?raw";
+import { posts } from "../../data/posts.js";
+
+const post = posts.find((item) => item.slug === "x-client-transaction-id");
+---
+
+<BaseLayout title={`${post.title} - h3d4 的个人主页`} description={post.description}>
+  <header class="site-header">
+    <a href="/">h3d4 的个人主页</a>
+  </header>
+  <main>
+    <article>
+      <h1>{post.title}</h1>
+      <p class="meta">作者：{post.author} · 发布于 {post.publishedAt}</p>
+      <div class="markdown-body" set:html={articleBody} />
+    </article>
+  </main>
+  <footer class="site-footer">© h3d4</footer>
+</BaseLayout>
+
+<style>
+  .site-header,
+  main,
+  .site-footer {
+    width: min(960px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .site-header {
+    padding: 28px 0 18px;
+  }
+
+  .site-header a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  article {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: clamp(22px, 5vw, 48px);
+    box-shadow: 0 18px 50px rgba(31, 41, 51, 0.08);
+  }
+
+  h1 {
+    margin: 0 0 10px;
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
+
+  .meta {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .markdown-body :global(h2),
+  .markdown-body :global(h3) {
+    margin-top: 32px;
+    line-height: 1.35;
+  }
+
+  .markdown-body :global(p) {
+    margin: 16px 0;
+  }
+
+  .markdown-body :global(a) {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+
+  .markdown-body :global(code) {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.12em 0.35em;
+    font-family: "Cascadia Code", Consolas, "Liberation Mono", monospace;
+    font-size: 0.92em;
+  }
+
+  .markdown-body :global(pre) {
+    margin: 18px 0;
+    overflow: auto;
+    background: #111827;
+    color: #e5e7eb;
+    border-radius: 8px;
+    padding: 18px;
+    line-height: 1.55;
+  }
+
+  .markdown-body :global(pre code) {
+    display: block;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font-size: 14px;
+    white-space: pre;
+  }
+
+  .markdown-body :global(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 20px auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .site-footer {
+    padding: 26px 0 36px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .site-header,
+    main,
+    .site-footer {
+      width: min(100% - 20px, 960px);
+    }
+
+    article {
+      padding: 20px 14px;
+      border-radius: 6px;
+    }
+
+    .markdown-body :global(pre) {
+      margin-left: -6px;
+      margin-right: -6px;
+      padding: 14px;
+    }
+  }
+</style>

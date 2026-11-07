@@ -4,4 +4,4 @@
 
 - Source: https://commons.wikimedia.org/wiki/File:Mountain_Lake_Sunset.jpg
 - License: CC0 1.0 Universal / public domain dedication
-- Local change: Wikimedia Commons' resized JPEG is used; it is cropped, color-graded, and given a subtle slow pan with CSS.
+- Local change: Wikimedia Commons' resized JPEG is used as a static, cropped background without real-time filters or video decoding.

@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>QAIT 链上结构与开盘行为复盘 - h3d4 的个人主页</title><meta name="description" content="从跨链供应、筹码分配、三轮流动性重构到开盘后的筹码释放"><style>:root{color-scheme:light;--text: #1f2933;--muted: #637083;--line: #d8dee8;--code-bg: #f5f7fa;--accent: #0f766e;--paper: #ffffff;--page: #eef2f5}*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans SC,Microsoft YaHei,sans-serif;line-height:1.75}a{color:var(--accent)}
+</style>
+<link rel="stylesheet" href="/_astro/qait-chain-analysis.DKH2Duj5.css"></head> <body>  <header class="site-header" data-astro-cid-rpvwbkvh> <a href="/" aria-label="返回文章列表" data-astro-cid-rpvwbkvh>← h3d4 的个人主页</a> </header> <main data-astro-cid-rpvwbkvh> <article data-astro-cid-rpvwbkvh> <header class="article-header" data-astro-cid-rpvwbkvh> <p class="eyebrow" data-astro-cid-rpvwbkvh>ON-CHAIN FORENSICS · QAIT</p> <h1 data-astro-cid-rpvwbkvh>QAIT 链上结构与开盘行为复盘</h1> <p class="dek" data-astro-cid-rpvwbkvh>从跨链供应、筹码分配、三轮流动性重构到开盘后的筹码释放</p> <div class="meta" data-astro-cid-rpvwbkvh> <span data-astro-cid-rpvwbkvh>作者：h3d4</span> <span data-astro-cid-rpvwbkvh>发布于 2026-11-06</span> <span data-astro-cid-rpvwbkvh>BNB Chain / LayerZero / AMM</span> </div> </header> <section class="map-section" aria-label="QAIT 链上全流程交互图" data-astro-cid-rpvwbkvh> <div class="map-frame" data-astro-cid-rpvwbkvh> <iframe src="../interactive/qait-chain-map.html" title="QAIT 供应、流动性重构与市场事件交互节点图" loading="eager" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" data-astro-cid-rpvwbkvh></iframe> </div> </section> <section class="analysis" aria-label="QAIT 链上分析正文" data-astro-cid-rpvwbkvh> <div class="markdown-body" data-astro-cid-rpvwbkvh><h1>行为筛选</h1>
+<p>根据历史行为判断，博主主要以上币为前提进行代币分析</p>
+<p>例如</p>
+<p><a href="https://bscscan.com/tx/0x84347eacfd58c83719052fd1fbc2365afdbba89335bbd0926c718e51c78bdfd0">https://bscscan.com/tx/0x84347eacfd58c83719052fd1fbc2365afdbba89335bbd0926c718e51c78bdfd0</a></p>
+<pre><code>{
+  &quot;key&quot;: {
+    &quot;currency0&quot;: &quot;0x4d41A5d412f4Ef44A35b9f53b06DB65edE249493&quot;, QAIT
+    &quot;currency1&quot;: &quot;0x55d398326f99059fF775485246999027B3197955&quot;, USDT
+    &quot;hooks&quot;: &quot;0xb0bb171D333569CfD28a37F5c5DdDAAa90aD46af&quot;, 币安hook，控制初始化，开盘时间，初始价格等
+    &quot;poolManager&quot;: &quot;0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b&quot;, AMM池管理合约
+    &quot;fee&quot;: &quot;100&quot;, 手续费
+    &quot;parameters&quot;: &quot;0x0000000000000000000000000000000000000000000000000000000000010045&quot;
+  },
+  &quot;startTimestamp&quot;: &quot;1779973200&quot;,
+  &quot;sqrtPriceX96&quot;: &quot;250541448375047931186413801569606&quot;
+}
+</code></pre>
+<p>得到基础类型</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>当前结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>QAIT</td>
+</tr>
+<tr>
+<td><code>symbol</code></td>
+<td>QAIT</td>
+</tr>
+<tr>
+<td><code>decimals</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td>BSC 当前 <code>totalSupply</code></td>
+<td>约 <code>6,599,974,163.58734610 QAIT</code></td>
+</tr>
+<tr>
+<td>官方最大供应量</td>
+<td>100 亿 QAIT</td>
+</tr>
+<tr>
+<td>合约名称</td>
+<td><code>QAITOFT</code></td>
+</tr>
+<tr>
+<td>是否代理合约</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><code>0x8bd42691cf12d798350f769b58efd8ec090f708f</code></td>
+</tr>
+<tr>
+<td>Owner 类型</td>
+<td>Safe 多签合约</td>
+</tr>
+<tr>
+<td>多签门槛</td>
+<td>3/5</td>
+</tr>
+</tbody></table>
+<h3>检查是否可以继续铸造</h3>
+<p>不存在</p>
+<h3>是否存在跨链</h3>
+<p>存在</p>
+<p>并且存在setPeer，掌握多签可以恶意铸造，并多链叠加可能超出bsc供应量</p>
+<h3>是否可以暂停转账</h3>
+<p>不可以</p>
+<h3>是否存在黑名单冻结</h3>
+<p>不存在	</p>
+<h3>是否可以修改池子税率</h3>
+<p>不可以</p>
+<h3>是否可以升级程序更换逻辑？</h3>
+<p>不可以</p>
+<h3>owner是谁？</h3>
+<p>多签钱包，基本可以判定为安全</p>
+<p>得出结论</p>
+<pre><code>QAIT 的普通 ERC-20 合约层面比较干净，不像税币、黑名单币或可升级后门币。主要风险集中在 LayerZero 跨链架构和 3/5 Owner 多签：管理员不能直接冻结你的钱包或修改买卖税，但能修改可信跨链对端，从而影响跨链安全，极端情况下可能形成非正常铸币路径。
+</code></pre>
+<h1>跨链分析</h1>
+<p>因为代币本身没有黑名单、税率、暂停等明显问题，现在最大的未确认风险就是跨链 Mint。</p>
+<p>查询官网得知目前创建在四条链上</p>
+<table>
+<thead>
+<tr>
+<th>网络</th>
+<th>官方地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hedera 原生 QAIT</td>
+<td><code>0.0.10039182</code></td>
+</tr>
+<tr>
+<td>Hedera Connector</td>
+<td><code>0.0.10231756</code></td>
+</tr>
+<tr>
+<td>BNB Smart Chain</td>
+<td><code>0x4d41A5d412f4Ef44A35b9f53b06DB65edE249493</code></td>
+</tr>
+<tr>
+<td>Ethereum</td>
+<td><code>0x2C9A0895A18c6ba7404E86bC5aEc0518f859181A</code></td>
+</tr>
+<tr>
+<td>Base</td>
+<td><code>0x0c9147701Ea8B0EFDdbe6a0E3950d922227Dd19b</code></td>
+</tr>
+</tbody></table>
+<p>一共100e，跨链进入Hedera Connector然后在目标链进行铸造</p>
+<h1>筹码分布</h1>
+<p>监听转账事件找到</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>收到数量</th>
+<th>占总量</th>
+<th>用途</th>
+<th>是否受限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vesting</td>
+<td>约55.5亿</td>
+<td>55.5%</td>
+<td>声称锁仓</td>
+<td>待验证</td>
+</tr>
+<tr>
+<td>LP地址</td>
+<td>约8.7亿</td>
+<td>8.7%</td>
+<td>Pancake流动性</td>
+<td>可以撤出</td>
+</tr>
+<tr>
+<td>Alpha地址</td>
+<td>1亿</td>
+<td>1%</td>
+<td>空投</td>
+<td>可流通</td>
+</tr>
+<tr>
+<td>交易赛地址</td>
+<td>5000万</td>
+<td>0.5%</td>
+<td>奖励</td>
+<td>可流通</td>
+</tr>
+<tr>
+<td>其他地址</td>
+<td>待核对</td>
+<td>—</td>
+<td>CEX/备用</td>
+<td>待验证</td>
+</tr>
+</tbody></table>
+<h2>Vesting</h2>
+<p><a href="https://bscscan.com/tx/0x7b979e2126d9e9e30e56cf8a468987241eb7c3811c11454dd188ca20eaf4b583">https://bscscan.com/tx/0x7b979e2126d9e9e30e56cf8a468987241eb7c3811c11454dd188ca20eaf4b583</a></p>
+<p>转入5,549,999,999.99999999 QAIT到0xab7bE99FE2D0e71ee1ad14AFFae8BF8e5Eb0A7C6</p>
+<p>合约锁仓55.5e，总批次：12批，每批：4.625亿，间隔：约3个月</p>
+<p>风险：可以修改时间，升级合约，紧急提取</p>
+<h2>LP地址</h2>
+<p><a href="https://bscscan.com/tx/0x84347eacfd58c83719052fd1fbc2365afdbba89335bbd0926c718e51c78bdfd0">https://bscscan.com/tx/0x84347eacfd58c83719052fd1fbc2365afdbba89335bbd0926c718e51c78bdfd0</a></p>
+<pre><code>交易对：QAIT/USDT
+初始价格：0.001 USDT/QAIT
+开放时间：2026-05-28 21:00（北京时间）
+</code></pre>
+<p><a href="https://bscscan.com/tx/0x5e41366086dd92e0e4189c947eed60b08fb2c22b48b092115304f11b1d831c89">https://bscscan.com/tx/0x5e41366086dd92e0e4189c947eed60b08fb2c22b48b092115304f11b1d831c89</a></p>
+<pre><code>6.604亿 QAIT/35万 USDT
+0.0005 ～ 0.005 USDT
+</code></pre>
+<p><a href="https://bscscan.com/tx/0x0115c81985053e2cb879c7c43de3c3e22f37a1957cea85546ff1da97de9ad976">https://bscscan.com/tx/0x0115c81985053e2cb879c7c43de3c3e22f37a1957cea85546ff1da97de9ad976</a></p>
+<pre><code>2.063亿 QAIT
+15万 USDT
+0.0003 ～ 0.007 USDT
+</code></pre>
+<p>初始价格 <strong>0.001 USDT</strong> 位于两个流动性区间的重叠部分。价格从 0.001 上涨到 0.005 的过程中，两层仓位同时参与交易，随着买家投入 USDT，池子会持续释放 QAIT，因此相较于 0.005 以上，这一段的上涨阻力更大。
+超过 <strong>0.005</strong> 后，<code>0.0005～0.005</code> 的窄区间仓位停止参与，只剩 <code>0.0003～0.007</code> 的宽区间，流动性和上涨阻力都会变薄。超过 <strong>0.007</strong> 后，这两笔仓位都退出活跃状态，但池子不一定停止交易，因为还可能存在其他仓位。
+两张 Position NFT 由项目方关联的操作地址控制，因此该地址可以撤出、增加或重新配置流动性。</p>
+</div> <section class="locked-section" id="qait-locked-section" data-ciphertext="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" data-salt="23D4Yrir0nyQe9J+TwoKTg==" data-iv="CkOhNxMmMntHZbRa" data-iterations="600000" aria-labelledby="locked-title" data-astro-cid-rpvwbkvh> <div class="lock-panel" id="qait-lock-panel" data-astro-cid-rpvwbkvh> <p class="lock-kicker" data-astro-cid-rpvwbkvh>RESTRICTED · ON-CHAIN EVIDENCE</p> <h2 id="locked-title" data-astro-cid-rpvwbkvh>空投、交易赛与后续筹码追踪</h2> <p class="lock-description" data-astro-cid-rpvwbkvh>
+从本节开始的链上路径、地址归集和开盘复盘已加密。输入阅读密钥后，内容只在当前浏览器中解密。
+</p> <form class="unlock-form" id="qait-unlock-form" data-astro-cid-rpvwbkvh> <label for="qait-password" data-astro-cid-rpvwbkvh>阅读密钥</label> <div class="unlock-row" data-astro-cid-rpvwbkvh> <input id="qait-password" name="password" type="password" autocomplete="off" spellcheck="false" required placeholder="输入密钥" data-astro-cid-rpvwbkvh> <button type="submit" data-astro-cid-rpvwbkvh>解锁内容</button> </div> <p class="unlock-status" id="qait-unlock-status" role="status" aria-live="polite" data-astro-cid-rpvwbkvh></p> </form> </div> <div class="markdown-body private-body" id="qait-private-body" hidden data-astro-cid-rpvwbkvh></div> </section> </section> </article> </main> <footer class="site-footer" data-astro-cid-rpvwbkvh>© h3d4 · 链上数据会随时间变化，请以区块浏览器最新状态为准。</footer>  </body></html>  <script>
+  const lockedSection = document.getElementById("qait-locked-section");
+  const unlockForm = document.getElementById("qait-unlock-form");
+  const passwordInput = document.getElementById("qait-password");
+  const status = document.getElementById("qait-unlock-status");
+  const lockPanel = document.getElementById("qait-lock-panel");
+  const privateBody = document.getElementById("qait-private-body");
+
+  const decodeBase64 = (value) =>
+    Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
+
+  unlockForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = passwordInput.value;
+    const button = unlockForm.querySelector("button");
+
+    if (!password) {
+      status.textContent = "请输入阅读密钥。";
+      passwordInput.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "正在解锁…";
+    status.textContent = "";
+
+    try {
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(password),
+        "PBKDF2",
+        false,
+        ["deriveKey"],
+      );
+      const key = await crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt: decodeBase64(lockedSection.dataset.salt),
+          iterations: Number(lockedSection.dataset.iterations),
+          hash: "SHA-256",
+        },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"],
+      );
+      const plaintext = await crypto.subtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv: decodeBase64(lockedSection.dataset.iv),
+        },
+        key,
+        decodeBase64(lockedSection.dataset.ciphertext),
+      );
+
+      privateBody.innerHTML = new TextDecoder().decode(plaintext);
+      privateBody.hidden = false;
+      lockPanel.hidden = true;
+      privateBody.querySelector("h2, h1, h3")?.focus?.();
+    } catch {
+      status.textContent = "密钥不正确，请检查后重试。";
+      passwordInput.select();
+    } finally {
+      button.disabled = false;
+      button.textContent = "解锁内容";
+    }
+  });
+</script>

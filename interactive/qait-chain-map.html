@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QAIT 链上节点图</title>
+<style>
+:root{--bg:#edf2f6;--paper:#f9fbfd;--ink:#142333;--muted:#637386;--line:#aab8c6;--navy:#12334d;--green:#16805d;--red:#ba4346;--orange:#dc7137;--purple:#6957a8;--cyan:#18748a;--shadow:0 15px 40px rgba(17,43,64,.12)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",sans-serif;overflow:hidden}
+.app{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;background-image:linear-gradient(rgba(68,96,119,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(68,96,119,.055) 1px,transparent 1px);background-size:28px 28px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:20px 28px 16px;background:rgba(249,251,253,.96);border-bottom:1px solid #cbd5de}
+.eyebrow{font:600 10px/1.2 Consolas,monospace;letter-spacing:.17em;color:var(--cyan);text-transform:uppercase}.title{font-size:30px;line-height:1.05;font-weight:700;letter-spacing:-.04em;margin:7px 0 0}.sub{max-width:620px;color:var(--muted);font-size:13px;line-height:1.6;text-align:right}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 28px;background:rgba(249,251,253,.92);border-bottom:1px solid #cbd5de}.controls,.filters,.legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+button{border:1px solid #b8c4cf;background:#fff;color:var(--ink);font:600 12px/1 "Segoe UI","Microsoft YaHei",sans-serif;padding:8px 11px;min-height:34px}.primary{background:var(--navy);color:#fff;border-color:var(--navy)}button:hover{background:#e7eef4}button.primary:hover{background:#1b4667}.filter.active{color:#fff}.filter[data-kind="supply"].active{background:var(--green);border-color:var(--green)}.filter[data-kind="pool"].active{background:var(--cyan);border-color:var(--cyan)}.filter[data-kind="market"].active{background:var(--orange);border-color:var(--orange)}.filter[data-kind="risk"].active{background:var(--red);border-color:var(--red)}
+.stage{position:relative;overflow:hidden}.canvas{width:100%;height:100%;display:block;touch-action:none}.lane{fill:rgba(255,255,255,.38)}.lane-title{font:600 11px Consolas,monospace;letter-spacing:.12em;fill:#6b7b8b}.edge{fill:none;stroke:#91a2b1;stroke-width:2;opacity:.8;marker-end:url(#arrow)}.edge.flow{stroke:var(--green)}.edge.pool{stroke:var(--cyan)}.edge.risk{stroke:var(--red);stroke-dasharray:6 5}.edge.market{stroke:var(--orange)}.edge.dim{opacity:.1}.node{filter:drop-shadow(0 5px 7px rgba(22,45,64,.12))}.node rect{fill:var(--paper);stroke:#bdc9d3;stroke-width:1.3}.node .cap{fill:var(--navy);stroke:none}.node.supply .cap{fill:var(--green)}.node.pool .cap{fill:var(--cyan)}.node.market .cap{fill:var(--orange)}.node.risk .cap{fill:var(--red)}.node text{pointer-events:none}.node .n-title{font-size:14px;font-weight:700;fill:var(--ink)}.node .n-meta{font-size:11px;fill:var(--muted)}.node .n-value{font:600 12px Consolas,monospace;fill:var(--ink)}.node:hover rect,.node.selected rect{stroke:var(--navy);stroke-width:2.5}.node.selected{filter:drop-shadow(0 8px 12px rgba(18,51,77,.25))}.node.dim{opacity:.15}.pulse{animation:pulse 1.15s ease-in-out infinite}@keyframes pulse{50%{filter:drop-shadow(0 0 12px rgba(220,113,55,.75))}}@media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+.detail{position:absolute;right:22px;top:18px;width:330px;max-height:calc(100% - 36px);overflow:auto;background:rgba(249,251,253,.97);border:1px solid #b8c5d0;box-shadow:var(--shadow);padding:19px;transform:translateX(calc(100% + 45px));transition:transform .24s ease}.detail.open{transform:translateX(0)}.detail-kicker{font:600 10px Consolas,monospace;letter-spacing:.14em;color:var(--cyan)}.detail h2{font-size:21px;line-height:1.25;margin:8px 0 9px}.detail p{font-size:13px;line-height:1.7;color:#405164;margin:0 0 13px}.facts{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid #cbd5de;border-top:1px solid #cbd5de}.fact{padding:9px;border-right:1px solid #cbd5de;border-bottom:1px solid #cbd5de}.fact small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.fact strong{font:600 11px/1.35 Consolas,monospace}.detail a{display:inline-block;margin-top:14px;color:var(--cyan);font-size:12px}.close{position:absolute;right:10px;top:10px;padding:4px 8px;min-height:28px}.foot{display:flex;justify-content:space-between;gap:20px;padding:9px 28px;background:rgba(249,251,253,.94);border-top:1px solid #cbd5de;color:var(--muted);font-size:11px}.dot{width:8px;height:8px;display:inline-block;margin-right:5px}.dot.supply{background:var(--green)}.dot.pool{background:var(--cyan)}.dot.market{background:var(--orange)}.dot.risk{background:var(--red)}
+@media(max-width:760px){header{align-items:flex-start;flex-direction:column}.sub{text-align:left}.toolbar{align-items:flex-start;flex-direction:column}.stage{min-height:640px}.detail{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-height:48%}.foot{display:none}}
+/* Embedded article view: keep only the HTML/SVG evidence map. */
+header,.toolbar,.detail,.foot{display:none!important}
+.app{grid-template-rows:1fr}
+.stage{min-height:0}
+html,body,.app,.stage{background:transparent!important;background-image:none!important}
+body,.app,.stage,.canvas{-webkit-user-select:none;user-select:none}
+.lane{fill:transparent}
+.canvas{cursor:grab}
+.canvas:active{cursor:grabbing}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div><div class="eyebrow">QAIT · chain forensic map · 2026</div><h1 class="title">一个节点图，看懂供应、改池与出货</h1></div><div class="sub">从左到右是时间；纵向分为供应、流动性与市场三条线。点击任意节点查看数量、交易与证据边界。</div></header>
+  <div class="toolbar">
+    <div class="controls"><button class="primary" id="play">▶ 播放流程</button><button id="reset">重置视图</button><button id="fit">显示全部</button></div>
+    <div class="filters" aria-label="节点筛选"><button class="filter active" data-kind="supply">供应</button><button class="filter active" data-kind="pool">池子</button><button class="filter active" data-kind="market">市场</button><button class="filter active" data-kind="risk">风险</button></div>
+  </div>
+  <main class="stage" id="stage">
+    <svg class="canvas" id="canvas" viewBox="0 0 1650 900" role="img" aria-label="QAIT供应、流动性重构和市场事件节点关系图">
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>
+      <g id="viewport"><g id="lanes"></g><g id="edges"></g><g id="nodes"></g></g>
+    </svg>
+    <aside class="detail" id="detail" aria-live="polite"><button class="close" id="close">×</button><div id="detailContent"></div></aside>
+  </main>
+  <footer class="foot"><div class="legend"><span><i class="dot supply"></i>供应/跨链</span><span><i class="dot pool"></i>池子结构</span><span><i class="dot market"></i>市场交易</span><span><i class="dot risk"></i>风险/口径</span></div><div>滚轮缩放 · 拖动画布 · 点击节点查看证据</div></footer>
+</div>
+<script>
+const N=[
+{id:'root',x:35,y:90,w:190,h:74,k:'supply',t:'Hedera 根资产',m:'原生 Token · 100亿上限',v:'0.0.10039182',d:'QAIT官方供应源头。100亿是全链口径，不能把BSC单链totalSupply当成全链总量。',f:[['最大供应','10,000,000,000'],['网络','Hedera']],u:'https://www.qait.ch/qait-token'},
+{id:'bridge',x:285,y:90,w:190,h:74,k:'supply',t:'Connector + LayerZero',m:'锁定/销毁 → 跨链消息',v:'OFT BRIDGE',d:'跨链时源链锁定或销毁，目标链经可信消息铸造。BSC存在跨链mint路径，但不是公开任意mint。',f:[['作用','跨链协调'],['关键风险','Peer/管理员']]},
+{id:'bsc',x:535,y:90,w:190,h:74,k:'supply',t:'BSC QAIT OFT',m:'目标链铸造/销毁',v:'0x4d41…9493',d:'BSC上的QAIT合约。合法LayerZero消息可以触发_credit()与_mint()。',f:[['合约','OFT'],['权限','Safe/Peer配置']],u:'https://bscscan.com/token/0x4d41a5d412f4ef44a35b9f53b06db65ede249493'},
+{id:'vesting',x:790,y:25,w:200,h:74,k:'supply',t:'Vesting 合约',m:'12批 · 约3个月/批',v:'55.5亿 QAIT',d:'约55.5亿进入Vesting合约。链上能确认转入与批次，但管理员可升级、改时间或紧急提取，不能把“声称锁仓”当绝对不可动。',f:[['占总量','55.5%'],['每批','约4.625亿']],u:'https://bscscan.com/tx/0x7b979e2126d9e9e30e56cf8a468987241eb7c3811c11454dd188ca20eaf4b583'},
+{id:'alpha',x:790,y:115,w:200,h:74,k:'supply',t:'Alpha 候选地址',m:'3,214份 × 31,111',v:'约1亿 QAIT',d:'1亿枚后来与Binance Alpha空投总量吻合。用途是后验交叉验证，不是仅凭新钱包即可确定。',f:[['占总量','1%'],['总空投','99,990,754']]},
+{id:'contest',x:790,y:205,w:200,h:74,k:'supply',t:'交易赛候选地址',m:'预算型分配',v:'5000万 QAIT',d:'与交易赛奖励规模相符。它不是固定按总量1%配置，而更像按美元预算反推。',f:[['占总量','0.5%'],['证据','后续用途匹配']]},
+{id:'pool1',x:35,y:365,w:210,h:82,k:'pool',t:'第一版厚池',m:'初始价 0.001',v:'8.7亿QAIT + 50万U',d:'两层重叠集中流动性覆盖0.0003—0.007。上涨过程中需要持续吸收大量QAIT，价格最难快速拉高。',f:[['Position','836518/836519'],['时间','05-27 21:14']],u:'https://bscscan.com/tx/0x84347eacfd58c83719052fd1fbc2365afdbba89335bbd0926c718e51c78bdfd0'},
+{id:'remove1',x:300,y:365,w:185,h:82,k:'risk',t:'第一次撤池',m:'旧价格模型失效',v:'撤出约8.66亿',d:'原Position被全部撤走。第一版“推到某价格需要多少钱”的计算从此作废。',f:[['撤出USDT','约50万'],['时间','05-28 19:01']],u:'https://bscscan.com/tx/0x00af54fc38a2ff79b486e2a0a805623a300813fd750f953b1cc6266cd6403aa8'},
+{id:'pool2',x:540,y:365,w:205,h:82,k:'pool',t:'第二版单边结构',m:'承接50万U · 上方变薄',v:'仅5000万 QAIT',d:'下方仍放USDT承接，上方只放2000万和3000万QAIT。价格更容易被少量买盘推高。',f:[['区间','0.001—0.007'],['Position','837430—837433']],u:'https://bscscan.com/tx/0x465154db3be6d268f8ddbc43dcc3b7fbf4ea6f6f6451145b29c7b2a0aa7b0cd2'},
+{id:'remove2',x:800,y:365,w:185,h:82,k:'risk',t:'第二次撤空',m:'等待最终定价',v:'4个Position撤出',d:'第二版再次被撤走，开盘继续延迟。此时正确动作是等待最终池型，而不是沿用旧结构。',f:[['全范围仓位','836632'],['时间','05-28 20:32']],u:'https://bscscan.com/tx/0x562755aaa702d787cdf656a82243761ea45bed2602bbcd46469c33462e4ea1ee'},
+{id:'pool3',x:1040,y:365,w:210,h:82,k:'pool',t:'最终版陡峭池',m:'初始价上移到 0.002',v:'上方约1亿 QAIT',d:'近端2500万覆盖0.002—0.005，远端7500万覆盖0.005—0.05。较第一版少约7.7亿上涨库存。',f:[['近端','2500万'],['远端','7500万']]},
+{id:'open',x:1310,y:365,w:210,h:82,k:'market',t:'正式开放',m:'05-28 23:00',v:'薄卖墙 + 高敏感度',d:'最终池型开放交易。结构决定少量买盘也能显著推动边际价格。',f:[['池初始价','0.002'],['开放网络','BNB Chain']]},
+{id:'eoa',x:1040,y:555,w:210,h:82,k:'risk',t:'撤池筹码分仓',m:'500M / 176M / 67M…',v:'约7.6亿 → EOA',d:'未重新放回最终池的大量QAIT进入普通钱包。没有时间锁或多签约束，私钥持有人可随时转账或出售。',f:[['钱包类型','EOA'],['链上限制','无']],u:'https://x.com/2024MacBookPro/status/2064708537855733816'},
+{id:'mev',x:35,y:690,w:215,h:82,k:'market',t:'MEV首块狙击',m:'11万USDT + 110 BNB',v:'买入3106万 QAIT',d:'狙击者首块成交，池内平均买价约0.00354；计入Builder付款后综合成本约0.0057—0.0058。成本不是价格底线。',f:[['交易后池价','约0.00555'],['时间','23:00:00']],u:'https://bscscan.com/tx/0xcfeca11e8716a6fa1bfdefb8dddbc98a7d5b41fde2f0f48f5f303e51705788dc'},
+{id:'sell10',x:310,y:690,w:205,h:82,k:'risk',t:'3秒后卖出10%',m:'即时回收部分本金',v:'310.6万 → 18,348U',d:'精确卖出买入量的10%，证明狙击者并非“不卖”。剩余筹码后来被分仓，原地址归零不等于当场全部卖完。',f:[['卖价','约0.005906'],['时间','23:00:03']],u:'https://bscscan.com/tx/0x1c156b6c1eeda68f48a14300293430139288655928d5d037c8878c696f03d2b8'},
+{id:'fomo',x:575,y:690,w:205,h:82,k:'market',t:'Alpha大毛 + FOMO',m:'空投价值快速放大',v:'价格最高约0.035',d:'薄卖墙、MEV开盘锚点、3214份大额空投和“5%流通”平台口径共同强化稀缺叙事。',f:[['每份高点价值','约1088U'],['驱动','结构+情绪']]},
+{id:'cluster',x:840,y:690,w:205,h:82,k:'risk',t:'分仓集群卖出',m:'社区追踪：6月底卖完',v:'原狙击地址归零',d:'开盘10%卖出是链上确定事实；剩余部分经多地址分仓。社区认为6月底卖完，但完整结论仍需逐地址审计。',f:[['证据等级','中等'],['影响','6/27明显下跌']]},
+{id:'cex',x:1100,y:690,w:205,h:82,k:'risk',t:'EOA → CEX / Router',m:'KuCoin · MEXC · Gate',v:'持续释放筹码',d:'部分项目方相关普通钱包向交易所和Pancake路由转移。它们具备流通能力，即使平台未计入circulating supply。',f:[['性质','可卖筹码'],['是否锁定','否']]},
+{id:'now',x:1360,y:690,w:220,h:82,k:'risk',t:'流通口径分裂',m:'11-06 · 价格约0.001',v:'CMC 5亿 / CG 44.5亿',d:'CMC的5亿是平台采用的申报口径，不是链上推导；CoinGecko约44.5亿。真实可动用筹码必须按地址重新快照。',f:[['高点回撤','约97%'],['关键结论','勿把申报=锁定']],u:'https://coinmarketcap.com/currencies/qait/'}
+];
+const E=[
+['root','bridge','flow'],['bridge','bsc','flow'],['bsc','vesting','flow'],['bsc','alpha','flow'],['bsc','contest','flow'],
+['bsc','pool1','pool'],['pool1','remove1','pool'],['remove1','pool2','pool'],['pool2','remove2','pool'],['remove2','pool3','pool'],['pool3','open','pool'],
+['remove1','eoa','risk'],['eoa','cex','risk'],['open','mev','market'],['mev','sell10','market'],['sell10','fomo','market'],['fomo','cluster','risk'],['cluster','now','risk'],['cex','now','risk']
+];
+const order=['root','bridge','bsc','vesting','alpha','contest','pool1','remove1','pool2','remove2','pool3','eoa','open','mev','sell10','fomo','cluster','cex','now'];
+const ns='http://www.w3.org/2000/svg',nodesEl=document.getElementById('nodes'),edgesEl=document.getElementById('edges'),lanesEl=document.getElementById('lanes'),detail=document.getElementById('detail'),content=document.getElementById('detailContent'),svg=document.getElementById('canvas'),viewport=document.getElementById('viewport');
+function S(tag,a={}){const e=document.createElementNS(ns,tag);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));return e}
+[['供应与分配',0,0,1650,300],['三轮流动性重构',0,315,1650,245],['开盘交易与后续释放',0,575,1650,300]].forEach((d,i)=>{const r=S('rect',{x:d[1],y:d[2],width:d[3],height:d[4],class:'lane'});lanesEl.appendChild(r);const t=S('text',{x:18,y:d[2]+22,class:'lane-title'});t.textContent=`0${i+1} · ${d[0]}`;lanesEl.appendChild(t)});
+function anchor(n,side){return side==='r'?[n.x+n.w,n.y+n.h/2]:side==='l'?[n.x,n.y+n.h/2]:side==='b'?[n.x+n.w/2,n.y+n.h]:[n.x+n.w/2,n.y]}
+E.forEach(([a,b,k])=>{const A=N.find(n=>n.id===a),B=N.find(n=>n.id===b),vertical=Math.abs((A.y+A.h/2)-(B.y+B.h/2))>120;const p1=anchor(A,vertical?'b':'r'),p2=anchor(B,vertical?'t':'l');const mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2;const d=vertical?`M${p1} C${p1[0]},${my} ${p2[0]},${my} ${p2}`:`M${p1} C${mx},${p1[1]} ${mx},${p2[1]} ${p2}`;const path=S('path',{d,class:`edge ${k}`,'data-a':a,'data-b':b});edgesEl.appendChild(path)});
+N.forEach(n=>{const g=S('g',{class:`node ${n.k}`,'data-id':n.id,role:'button','aria-label':`${n.t}，${n.v}`});g.appendChild(S('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:3}));g.appendChild(S('rect',{x:n.x,y:n.y,width:7,height:n.h,class:'cap'}));const t=S('text',{x:n.x+18,y:n.y+22,class:'n-title'});t.textContent=n.t;g.appendChild(t);const m=S('text',{x:n.x+18,y:n.y+43,class:'n-meta'});m.textContent=n.m;g.appendChild(m);const v=S('text',{x:n.x+18,y:n.y+65,class:'n-value'});v.textContent=n.v;g.appendChild(v);g.addEventListener('click',e=>{e.stopPropagation();select(n.id)});nodesEl.appendChild(g)});
+function select(id){document.querySelectorAll('.node').forEach(e=>e.classList.toggle('selected',e.dataset.id===id));const n=N.find(x=>x.id===id);content.innerHTML=`<div class="detail-kicker">${n.k.toUpperCase()} · ${n.m}</div><h2>${n.t}</h2><p>${n.d}</p><div class="facts">${n.f.map(x=>`<div class="fact"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('')}</div>${n.u?`<a href="${n.u}" target="_blank" rel="noreferrer">打开对应证据 ↗</a>`:''}`;detail.classList.add('open')}
+document.getElementById('close').onclick=()=>detail.classList.remove('open');
+let tx=0,ty=0,scale=1,drag=null;
+function apply(){viewport.setAttribute('transform',`translate(${tx} ${ty}) scale(${scale})`)}
+svg.addEventListener('wheel',e=>{e.preventDefault();const factor=e.deltaY<0?1.12:.89;scale=Math.max(.55,Math.min(2.2,scale*factor));apply()},{passive:false});
+svg.addEventListener('pointerdown',e=>{e.preventDefault();drag={x:e.clientX,y:e.clientY,tx,ty};svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(!drag)return;e.preventDefault();tx=drag.tx+(e.clientX-drag.x);ty=drag.ty+(e.clientY-drag.y);apply()});svg.addEventListener('pointerup',()=>drag=null);svg.addEventListener('dragstart',e=>e.preventDefault());
+function fit(){tx=0;ty=0;scale=1;apply()}document.getElementById('fit').onclick=fit;document.getElementById('reset').onclick=()=>{fit();detail.classList.remove('open');document.querySelectorAll('.node').forEach(e=>e.classList.remove('selected','pulse','dim'));document.querySelectorAll('.edge').forEach(e=>e.classList.remove('dim'))};
+document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{b.classList.toggle('active');const on=[...document.querySelectorAll('.filter.active')].map(x=>x.dataset.kind);document.querySelectorAll('.node').forEach(e=>e.classList.toggle('dim',!on.includes(N.find(n=>n.id===e.dataset.id).k)));document.querySelectorAll('.edge').forEach(e=>{const a=N.find(n=>n.id===e.dataset.a),bb=N.find(n=>n.id===e.dataset.b);e.classList.toggle('dim',!on.includes(a.k)&&!on.includes(bb.k))})});
+let timer=null,idx=0;document.getElementById('play').onclick=function(){if(timer){clearInterval(timer);timer=null;this.textContent='▶ 播放流程';document.querySelectorAll('.node').forEach(e=>e.classList.remove('pulse'));return}this.textContent='Ⅱ 暂停';idx=0;timer=setInterval(()=>{document.querySelectorAll('.node').forEach(e=>e.classList.remove('pulse'));const id=order[idx++];const el=document.querySelector(`[data-id="${id}"]`);el.classList.add('pulse');select(id);if(idx>=order.length){clearInterval(timer);timer=null;this.textContent='▶ 重新播放'}},700)};
+select('root');
+</script>
+</body></html>
+
